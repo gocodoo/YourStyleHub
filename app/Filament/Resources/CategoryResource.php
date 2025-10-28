@@ -6,9 +6,13 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,28 +27,55 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('description'),
+                Select::make('parent_id')
+                    ->label('Parent Category')
+                    ->nullable()
+                    ->options(function () {
+                        return Category::pluck('name', 'id')->toArray();
+                    })
+                    ->searchable(),
             ]);
     }
 
     public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                //
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+{
+    return $table
+        ->columns([
+            TextColumn::make('name')
+                ->label('Category Name')
+                ->sortable()
+                ->searchable(),
+
+            TextColumn::make('description')
+                ->limit(50)
+                ->tooltip(fn ($record) => $record->description),
+
+            TextColumn::make('parent.name')
+                ->label('Parent Category')
+                ->sortable()
+                ->searchable()
+                ->default('-'),
+        ])
+        ->filters([
+            SelectFilter::make('parent_id')
+                ->label('Parent Category')
+                ->relationship('parent', 'name')
+                ->searchable()
+                ->placeholder('Top-level only'),
+        ])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
+}
 
     public static function getRelations(): array
     {
