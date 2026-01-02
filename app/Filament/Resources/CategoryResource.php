@@ -31,13 +31,14 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('description'),
-                Select::make('parent_id')
-                    ->label('Parent Category')
-                    ->nullable()
-                    ->options(function () {
-                        return Category::pluck('name', 'id')->toArray();
-                    })
-                    ->searchable(),
+                // Select::make('parent_id')
+                //     ->label('Parent Category')
+                //     ->nullable()
+                //     ->options(function () {
+                //         return Category::pluck('name', 'id')->toArray();
+                //     })
+                //     ->relationship('parent','name')
+                //     ->searchable(),
             ]);
     }
 

@@ -12,16 +12,4 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                TextInput::make('name')
-                            ->label('ឈ្មោះ'),
-                TextInput::make('email')
-                            ->label('អុីម៉ែល'),
-                TextInput::make('password')
-                            ->label('លេខសម្ងាត់'),
-            ]);
-    }
 }

@@ -10,6 +10,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,9 +28,18 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                // TextInput::make('name'),
-                // TextInput::make('email'),
-                // TextInput::make('password'),
+                TextInput::make('name')
+                            ->label('ឈ្មោះ'),
+                TextInput::make('email')
+                            ->label('អុីម៉ែល'),
+                TextInput::make('password')
+                            ->label('លេខសម្ងាត់'),
+                TextInput::make('email_otp')
+                            ->label('អ៊ីម៉ែល OTP'),
+                TextInput::make('type')
+                            ->label('ប្រភេទ'),
+                TextInput::make('type')
+                            ->label('ប្រភេទ'),
             ]);
     }
 
@@ -35,15 +47,17 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                // TextColumn::make('name'),
-                // TextColumn::make('email'),
-                // TextColumn::make('password'),
+                TextColumn::make('name'),
+                TextColumn::make('email'),
+                TextColumn::make('password'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
