@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,15 +34,19 @@ class UserResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
-                            ->label('ឈ្មោះ'),
+                        ->label('ឈ្មោះ'),
                 TextInput::make('email')
-                            ->label('អុីម៉ែល'),
-                TextInput::make('password')
-                            ->label('លេខសម្ងាត់'),
+                        ->label('អុីម៉ែល'),
+                
                 TextInput::make('email_otp')
-                            ->label('អ៊ីម៉ែល OTP'),
-                TextInput::make('type')
-                            ->label('ប្រភេទ'),
+                        ->label('អ៊ីម៉ែល OTP'),
+                Select::make('type')
+                        ->options(User::TYPES_USER)
+                        ->label('ប្រភេទ'),
+                Select::make('role_id')
+                        ->label('តួនាទី'),
+                TextInput::make('password')
+                        ->label('លេខសម្ងាត់'),
             ]);
     }
 

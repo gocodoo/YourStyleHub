@@ -4,8 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
 use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Models\Permission;
 use App\Models\Role;
 use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -35,6 +39,9 @@ class RoleResource extends Resource
                             ->label('Name'),
                 // TextInput::make('description')
                 //             ->label('Description'),
+                Section::make('Permissions')
+                    ->schema(static::getPermissionFormSchema())
+                    ->columns(2),
             ]);
     }
 
@@ -72,5 +79,19 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPermissionFormSchema(): array
+    {
+        $permissions = Permission::query()->whereNull('parent_id')->orderBy('id','asc')->get();
+        // dd($permissions);
+        $arr = [];
+        foreach($permissions as  $permission){
+            // dd($permission);
+            $arr[] = CheckboxList::make('permissions')
+                ->label($permission->description)
+                ->options($permission->children()->pluck('description','name')->toArray());
+        }
+        return $arr;
     }
 }
