@@ -37,8 +37,6 @@ class RoleResource extends Resource
             ->schema([
                 TextInput::make('name')
                             ->label('Name'),
-                // TextInput::make('description')
-                //             ->label('Description'),
                 Section::make('Permissions')
                     ->schema(static::getPermissionFormSchema())
                     ->columns(2),
@@ -50,7 +48,7 @@ class RoleResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
-                // TextColumn::make('description'),
+                TextColumn::make('type'),
             ])
             ->filters([
                 //
