@@ -6,6 +6,7 @@ use App\Filament\Resources\RoleResource\Pages;
 use App\Filament\Resources\RoleResource\RelationManagers;
 use App\Models\Permission;
 use App\Models\Role;
+use DB;
 use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
@@ -49,6 +50,30 @@ class RoleResource extends Resource
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('type'),
+                TextColumn::make('permissions')
+                    ->label('សិទ្ធ')
+                    ->formatStateUsing(function($state, $record){
+                        $state = '['.$state.']';
+                        $permissions = json_decode($state, true);
+                        $permissions_parents = collect($permissions)->whereNotNull('parent_id')->pluck('parent_id')->unique()->toArray();
+                        $permissions_parents = Permission::whereIn('id', $permissions_parents)->get();
+                        $permissions_parents = collect($permissions_parents);
+
+                         // Start building the HTML string
+                        $html = '';
+
+                        foreach ($permissions_parents as $parent) {
+                            $html .= '-<strong>' . $parent['description'] . '</strong> ( ';
+
+                            // Get child permissions for the current parent
+                            $childPermissions = collect($permissions)->where('parent_id', $parent['id'])->pluck('description')->implode(' , ');
+
+                            $html .= $childPermissions . ' ) <br>';
+                        }
+
+                        return $html;
+                    })
+                    ->html(),
             ])
             ->filters([
                 //
@@ -88,7 +113,18 @@ class RoleResource extends Resource
             // dd($permission);
             $arr[] = CheckboxList::make('permissions')
                 ->label($permission->description)
-                ->options($permission->children()->pluck('description','name')->toArray());
+                ->options($permission->children()->pluck('description','name')->toArray())
+                ->formatStateUsing(function ($record, $set) {
+                    if (isset($record) && !empty($record)) {
+                        $permission_ids = DB::table('role_has_permissions')->where('role_id', $record->id)->pluck('permission_id')->toArray() ?? [];
+                        $permission_names = Permission::query()->whereIn('id', $permission_ids)->pluck('name')->toArray() ?? [];
+                        if (!empty($permission_names)) {
+                            return $permission_names;
+                        }
+                        return [];
+                    }
+                    return [];
+                });
         }
         return $arr;
     }

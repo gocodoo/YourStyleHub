@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
+use Exception;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Log;
 use Spatie\Permission\Models\Permission;
 
 class InsertPermissionKeysAndAssignToRoles extends Seeder
@@ -48,6 +51,27 @@ class InsertPermissionKeysAndAssignToRoles extends Seeder
                             ]
                     );
                 $permission_names[] = $permission_name;
+                // dd($permission_names);
+            }
+        }
+        if(!empty($permission_names)){
+            // dd($permission_names);
+            $permission_ids = Permission::whereNotNull('parent_id')
+                ->whereIn('name', $permission_names)
+                ->pluck('id')
+                ->toArray();
+            if (!empty($permission_ids)) {
+                $admin_role = Role::where('name', 'Administrator')->first();
+                if ($admin_role) {
+                    try {
+                        // Sync all permissions (overwrite old ones)
+                        $admin_role->syncPermissions($permission_ids);
+
+                        Log::info('✅ Administrator permissions synced successfully.');
+                    } catch (Exception $e) {
+                        Log::error('❌ Failed to assign permissions to Administrator: ' . $e->getMessage());
+                    }
+                }
             }
         }
     }
